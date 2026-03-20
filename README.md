@@ -17,7 +17,7 @@ A production-ready personal diary application built with a complete DevOps pipel
 | Service | URL |
 |---------|-----|
 | 🌍 Live Application | [http://52.66.23.220:80](http://52.66.23.220:80) |
-| ☸️ Kubernetes App | [http://52.66.23.220:8888](http://52.66.23.220:8888) |
+| ☸️ Kubernetes App | [http://3.110.132.84:8888](http://3.110.132.84:8888) |
 | 🔁 Jenkins Dashboard | [http://52.66.23.220:8080](http://52.66.23.220:8080) |
 | 🐳 Backend Image | [sidhigoel/diary-backend](https://hub.docker.com/r/sidhigoel/diary-backend) |
 | 🐳 Frontend Image | [sidhigoel/diary-frontend](https://hub.docker.com/r/sidhigoel/diary-frontend) |
