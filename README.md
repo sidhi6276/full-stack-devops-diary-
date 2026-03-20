@@ -143,6 +143,11 @@ POST /api/entries
 
 ---
 
+## 📸 Screenshots
+
+### 🌐 Live Application
+![Diary App](screenshot/Screenshot%20(746).png)
+
 ## 🚀 Getting Started Locally
 
 ### Prerequisites
