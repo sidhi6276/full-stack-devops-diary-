@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+  namespace: diary-app        # Hamare namespace mein
+spec:
+  accessModes:
+    - ReadWriteOnce           # Ek node read/write karega
+  resources:
+    requests:
+      storage: 1Gi            # 1GB storage chahiye
+#mongodb ka data save rhne ke lie permanent storage mang rha hai , pod delete ho jaye tb bhi data safe rhe 

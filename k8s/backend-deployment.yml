@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  namespace: diary-app
+  labels:
+    app: diary-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: diary-backend
+  template:
+    metadata:
+      labels:
+        app: diary-backend
+    spec:
+      containers:
+        - name: diary-backend
+          image: sidhigoel/diary-backend:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: MONGO_URI
+              value: "mongodb://mongo-service.diary-app.svc.cluster.local:27017/diaryapp"
+            - name: JWT_SECRET
+              value: "mysecretkey123"
