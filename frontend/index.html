@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meri Diary</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { text-align: center; color: #333; padding: 20px 0;
+         border-bottom: 2px solid #ddd; margin-bottom: 24px; }
+    .form { background: white; padding: 20px; border-radius: 10px;
+            margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    input, textarea, select {
+      width: 100%; padding: 10px; margin-bottom: 12px;
+      border: 1px solid #ddd; border-radius: 6px; font-size: 14px;
+    }
+    textarea { resize: vertical; height: 100px; }
+    button.save {
+      width: 100%; padding: 12px; background: #4CAF50; color: white;
+      border: none; border-radius: 6px; font-size: 16px; cursor: pointer;
+    }
+    button.save:hover { background: #45a049; }
+    .card { background: white; border-radius: 10px; padding: 16px;
+            margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+    .card-header { display: flex; justify-content: space-between;
+                   align-items: center; margin-bottom: 8px; }
+    .card-header h3 { color: #333; font-size: 16px; }
+    .card p { color: #555; line-height: 1.6; margin-bottom: 8px; }
+    .card small { color: #999; }
+    button.del { background: #ff4444; color: white; border: none;
+                 border-radius: 4px; padding: 4px 12px; cursor: pointer; }
+    .empty { text-align: center; color: #aaa; padding: 40px 0; font-size: 16px; }
+    .error { background: #ffe0e0; color: #c00; padding: 10px;
+             border-radius: 6px; margin-bottom: 12px; display: none; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>📖 Meri Diary</h1>
+
+  <div class="form">
+    <div class="error" id="errBox"></div>
+    <input type="text" id="title" placeholder="Title likho..." />
+    <textarea id="content" placeholder="Aaj kya hua? Likho..."></textarea>
+    <select id="mood">
+      <option value="happy">😊 Happy</option>
+      <option value="sad">😢 Sad</option>
+      <option value="neutral" selected>😐 Neutral</option>
+      <option value="excited">🎉 Excited</option>
+      <option value="angry">😤 Angry</option>
+    </select>
+    <button class="save" onclick="addEntry()">Entry Save Karo</button>
+  </div>
+
+  <div id="entries"></div>
+</div>
+
+<script>
+  const API = 'http://52.66.23.220:5000/api/entries';
+
+  function showError(msg) {
+    const box = document.getElementById('errBox');
+    box.style.display = 'block';
+    box.innerText = msg;
+  }
+
+  function hideError() {
+    document.getElementById('errBox').style.display = 'none';
+  }
+
+  async function fetchEntries() {
+    try {
+      const res  = await fetch(API);
+      const data = await res.json();
+      const box  = document.getElementById('entries');
+      if (data.length === 0) {
+        box.innerHTML = '<p class="empty">Abhi koi entry nahi. Pehli entry likho! ✍️</p>';
+        return;
+      }
+      box.innerHTML = data.map(e => `
+        <div class="card">
+          <div class="card-header">
+            <h3>${moodEmoji(e.mood)} ${e.title}</h3>
+            <button class="del" onclick="deleteEntry('${e._id}')">Delete</button>
+          </div>
+          <p>${e.content}</p>
+          <small>${new Date(e.date).toLocaleDateString('en-IN')}</small>
+        </div>
+      `).join('');
+    } catch (err) {
+      showError('Entries load nahi hui. Backend chal raha hai? Error: ' + err.message);
+    }
+  }
+
+  async function addEntry() {
+    hideError();
+    const title   = document.getElementById('title').value.trim();
+    const content = document.getElementById('content').value.trim();
+    const mood    = document.getElementById('mood').value;
+
+    if (!title || !content) {
+      showError('Title aur content dono bharo!');
+      return;
+    }
+
+    try {
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, mood })
+      });
+
+      if (!res.ok) {
+        showError('Entry save nahi hui! Status: ' + res.status);
+        return;
+      }
+
+      document.getElementById('title').value   = '';
+      document.getElementById('content').value = '';
+      document.getElementById('mood').value    = 'neutral';
+      fetchEntries();
+    } catch (err) {
+      showError('Backend se connection nahi! Error: ' + err.message);
+    }
+  }
+
+  async function deleteEntry(id) {
+    if (!confirm('Delete karein?')) return;
+    try {
+      await fetch(`${API}/${id}`, { method: 'DELETE' });
+      fetchEntries();
+    } catch (err) {
+      showError('Delete nahi hua! Error: ' + err.message);
+    }
+  }
+
+  function moodEmoji(mood) {
+    const map = { happy:'😊', sad:'😢', neutral:'😐', excited:'🎉', angry:'😤' };
+    return map[mood] || '😐';
+  }
+
+  fetchEntries();
+</script>
+</body>
+</html>
